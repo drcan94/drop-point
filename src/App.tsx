@@ -11,22 +11,22 @@ import React, {MouseEvent, useState, useRef, useEffect} from "react";
 const App = () => {
 
     const [points, setPoints] = useState<Array<{ x: number, y: number }>>([]);
-    const [redoCachePoints, setRedoCachePoints] = useState<Array<{ x: number, y: number }>>(points)
-
-    const redoHandler = (e: MouseEvent<HTMLElement>) => {
-        e.stopPropagation()
-        const currentPoints = [...points]
-        const removedPoint = currentPoints.pop() as { x: number, y: number }
-        setRedoCachePoints((cachePoints: Array<{ x: number, y: number }>) => [...cachePoints, removedPoint])
-        setPoints(currentPoints)
-    }
+    const [undoCachePoints, setUndoCachePoints] = useState<Array<{ x: number, y: number }>>(points)
 
     const undoHandler = (e: MouseEvent<HTMLElement>) => {
         e.stopPropagation()
-        const currentCachePoints = [...redoCachePoints]
-        const removedCachePoint = currentCachePoints.pop()
-        setPoints((points: any) => [...points, removedCachePoint])
-        setRedoCachePoints(currentCachePoints)
+        const currentPoints = [...points]
+        const removedPoint = currentPoints.pop() as { x: number, y: number }
+        setUndoCachePoints((undoCachePoints: Array<{ x: number, y: number }>) => [...undoCachePoints, removedPoint])
+        setPoints(currentPoints)
+    }
+
+    const redoHandler = (e: MouseEvent<HTMLElement>) => {
+        e.stopPropagation()
+        const currentCachePoints = [...undoCachePoints]
+        const removedCachePoint = currentCachePoints.pop() as { x: number, y: number }
+        setUndoCachePoints(currentCachePoints)
+        setPoints((points: Array<{ x: number, y: number }>) => [...points, removedCachePoint])
     }
 
     const clickHandler = (e: MouseEvent<HTMLElement>) => {
@@ -43,15 +43,15 @@ const App = () => {
             }
         ])
 
-        // when item is added, cachePoints must be clean
-        setRedoCachePoints([])
+        // when item is added, undoCachePoints must be clean
+        setUndoCachePoints([])
     }
 
     return (
         <div className={"screen"} onClick={clickHandler}>
             <header className={"header"}>
-                <button disabled={points.length === 0} onClick={redoHandler}>Redo</button>
-                <button disabled={redoCachePoints.length === 0} onClick={undoHandler}>Undo</button>
+                <button disabled={points.length === 0} onClick={undoHandler}>Undo</button>
+                <button disabled={undoCachePoints.length === 0} onClick={redoHandler}>Redo</button>
             </header>
 
             {points.map((point, item) => {
